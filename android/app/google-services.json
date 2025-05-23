@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "146097191037",
+    "project_id": "fashiontime-28e3a",
+    "storage_bucket": "fashiontime-28e3a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146097191037:android:0283f85c728a1cc854d914",
+        "android_client_info": {
+          "package_name": "com.fashiontime.fashion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1qzUunLv0HP4PtNdwZ8d86Mb5tGBNUmg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
