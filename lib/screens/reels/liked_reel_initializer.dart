@@ -1,4 +1,3 @@
-
 import 'package:chewie/chewie.dart';
 import 'package:finalfashiontimefrontend/screens/posts-screens/post_like_user.dart';
 import 'package:finalfashiontimefrontend/screens/profiles/friend_profile.dart';
@@ -178,8 +177,7 @@ class _MyLikedReelsInitializerScreenState
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CreateReelScreen(
-                              ),
+                              builder: (context) => CreateReelScreen(),
                             ));
                       },
                       child: Icon(
@@ -292,7 +290,7 @@ class _MyLikedReelsInitializerScreenState
                   Column(
                     children: [
                       Icon(
-                        Icons.favorite,
+                        Icons.star,
                         color: primary,
                         size: 30,
                       ),

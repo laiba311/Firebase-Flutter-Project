@@ -50,7 +50,10 @@ class ReelsInitializerScreen extends StatefulWidget {
     this.refreshReel,
     required this.userPic,
     required this.friendId,
-    required this.isCommentEnabled, required this.reelCount, required this.navigateTo, required this.navigateToPageWithReelReportArguments,
+    required this.isCommentEnabled,
+    required this.reelCount,
+    required this.navigateTo,
+    required this.navigateToPageWithReelReportArguments,
   });
 
   @override
@@ -63,11 +66,12 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
   bool isPlaying = true;
   bool isLiked = false;
   bool heartIcon = false;
-  Map<String,dynamic> data = {};
+  Map<String, dynamic> data = {};
   bool loading = false;
   String id = "";
   String token = "";
   bool requestLoader1 = false;
+  bool isMuted = true;
 
   getCachedData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -76,18 +80,15 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
     getMyFriends(widget.friendId);
   }
 
-  getMyFriends(id){
+  getMyFriends(id) {
     setState(() {
       loading = true;
     });
-    try{
-      https.get(
-          Uri.parse("$serverUrl/user/api/allUsers/$id"),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token"
-          }
-      ).then((value){
+    try {
+      https.get(Uri.parse("$serverUrl/user/api/allUsers/$id"), headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      }).then((value) {
         print("Data ==> ${data.toString()}");
         setState(() {
           data = jsonDecode(value.body);
@@ -98,7 +99,7 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
           loading = false;
         });
       });
-    }catch(e){
+    } catch (e) {
       setState(() {
         loading = false;
       });
@@ -215,6 +216,14 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
     }
   }
 
+// Add this method to toggle mute/unmute
+  void _toggleMute() {
+    setState(() {
+      isMuted = !isMuted;
+      _videoPlayerController!.setVolume(isMuted ? 0.0 : 1.0);
+    });
+  }
+
   createDislike() async {
     String apiUrl = '$serverUrl/fashionReelLikes/${widget.myLikes}/';
     final headers = {
@@ -235,34 +244,35 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
       debugPrint("error disliking reel ${e.toString()}");
     }
   }
-  addFan(from,to){
+
+  addFan(from, to) {
     setState(() {
       requestLoader1 = true;
     });
-    https.post(
+    https
+        .post(
       Uri.parse("$serverUrl/fansRequests/"),
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token"
       },
-      body: json.encode({
-        "from_user": from,
-        "to_user": to
-      }),
-    ).then((value){
+      body: json.encode({"from_user": from, "to_user": to}),
+    )
+        .then((value) {
       setState(() {
         requestLoader1 = false;
       });
       print(value.body.toString());
       getMyFriends(widget.friendId);
-    }).catchError((value){
+    }).catchError((value) {
       setState(() {
         requestLoader1 = false;
       });
       print(value);
     });
   }
-  removeFan(fanId){
+
+  removeFan(fanId) {
     setState(() {
       requestLoader1 = true;
     });
@@ -272,13 +282,13 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token"
       },
-    ).then((value){
+    ).then((value) {
       setState(() {
         requestLoader1 = false;
       });
       print(value.body.toString());
       getMyFriends(widget.friendId);
-    }).catchError((value){
+    }).catchError((value) {
       setState(() {
         requestLoader1 = false;
       });
@@ -331,8 +341,16 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                                     Icon(
                                       Icons.add,
                                     ),
-                                    SizedBox(width: 10,),
-                                    Text("Add Flick",style: TextStyle(fontFamily: Poppins,fontSize: 14,color: ascent),)
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      "Add Flick",
+                                      style: TextStyle(
+                                          fontFamily: Poppins,
+                                          fontSize: 14,
+                                          color: ascent),
+                                    )
                                   ],
                                 ))),
                         PopupMenuItem(
@@ -355,8 +373,16 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                                     Icon(
                                       Icons.report_gmailerrorred,
                                     ),
-                                    SizedBox(width: 10,),
-                                    Text("Report Flick",style: TextStyle(fontFamily: Poppins,fontSize: 14,color: ascent),)
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      "Report Flick",
+                                      style: TextStyle(
+                                          fontFamily: Poppins,
+                                          fontSize: 14,
+                                          color: ascent),
+                                    )
                                   ],
                                 )))
                       ];
@@ -371,13 +397,21 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left:12.0,top: 12),
+          padding: const EdgeInsets.only(left: 12.0, top: 12),
           child: SizedBox(
             width: 60,
             child: Row(
               children: [
-                Text(widget.reelCount,style: const TextStyle(fontSize: 10,fontFamily: Poppins,),),
-                const SizedBox(width: 4,),
+                Text(
+                  widget.reelCount,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontFamily: Poppins,
+                  ),
+                ),
+                const SizedBox(
+                  width: 4,
+                ),
                 Icon(
                   Icons.remove_red_eye,
                   size: 20,
@@ -397,7 +431,7 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                   child: Visibility(
                       visible: heartIcon,
                       child: Icon(
-                        Icons.favorite,
+                        Icons.star,
                         size: 60,
                         color: primary,
                       ))),
@@ -435,7 +469,8 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                                         builder: (context) =>
                                             FriendProfileScreen(
                                                 id: widget.friendId.toString(),
-                                                username: Uri.decodeComponent(widget.name!)),
+                                                username: Uri.decodeComponent(
+                                                    widget.name!)),
                                       ));
                                 },
                                 child: Text(Uri.decodeComponent(widget.name!),
@@ -486,12 +521,12 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                           },
                           child: widget.myLikes == null
                               ? Icon(
-                                  Icons.favorite_border_outlined,
+                                  Icons.star_border,
                                   color: primary,
                                   size: 30,
                                 )
                               : Icon(
-                                  Icons.favorite,
+                                  Icons.star,
                                   color: primary,
                                   size: 30,
                                 )),
@@ -525,49 +560,76 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                               ),
                             )
                           : const SizedBox(),
-                      if(widget.friendId != id)
-                      loading == true ? const SpinKitCircle(color: ascent, size: 20,) : GestureDetector(
-                        onTap: () {
-                          if(data["isFan"] == false){
-                            addFan(id,widget.friendId);
-
-                          }else if(data["isFan"] == true) {
-                            removeFan(widget.friendId);
-                          }
-                          //Navigator.push(context,MaterialPageRoute(builder: (context) => EditProfile()));
-                        },
-                        child: Card(
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(15))
-                          ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 30,
-                            width: MediaQuery.of(context).size.width * 0.2,
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.topRight,
-                                    stops: const [0.0, 0.99],
-                                    tileMode: TileMode.clamp,
-                                    colors: data["isFan"] == true ? [
-                                      Colors.grey,
-                                      Colors.grey
-                                    ] : <Color>[
-                                      secondary,
-                                      primary,
-                                    ]),
-                                borderRadius: const BorderRadius.all(Radius.circular(12))
-                            ),
-                            child: requestLoader1 == true ? const SpinKitCircle(color: ascent, size: 20,) : Text(data["isFan"] == true ? 'Unfan' :'Fan',style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: Poppins,
-                            ),),
+                      GestureDetector(
+                        onTap: _toggleMute,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Icon(
+                            isMuted ? Icons.volume_off : Icons.volume_up,
+                            color: primary,
+                            size: 26,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20,)
+                      if (widget.friendId != id)
+                        loading == true
+                            ? const SpinKitCircle(
+                                color: ascent,
+                                size: 20,
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  if (data["isFan"] == false) {
+                                    addFan(id, widget.friendId);
+                                  } else if (data["isFan"] == true) {
+                                    removeFan(widget.friendId);
+                                  }
+                                  //Navigator.push(context,MaterialPageRoute(builder: (context) => EditProfile()));
+                                },
+                                child: Card(
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(15))),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 30,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.topRight,
+                                            stops: const [0.0, 0.99],
+                                            tileMode: TileMode.clamp,
+                                            colors: data["isFan"] == true
+                                                ? [Colors.grey, Colors.grey]
+                                                : <Color>[
+                                                    secondary,
+                                                    primary,
+                                                  ]),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(12))),
+                                    child: requestLoader1 == true
+                                        ? const SpinKitCircle(
+                                            color: ascent,
+                                            size: 20,
+                                          )
+                                        : Text(
+                                            data["isFan"] == true
+                                                ? 'Unfan'
+                                                : 'Fan',
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: Poppins,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                      const SizedBox(
+                        height: 20,
+                      )
                     ],
                   )
                 ],
