@@ -317,8 +317,10 @@ class _MyLikedReelsInitializerScreenState
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ReelCommentScreen(
-                                          userPic: widget.userPic,
-                                          reelId: widget.reelId!),
+                                        userPic: widget.userPic,
+                                        reelId: widget.reelId!,
+                                        commentId: null!,
+                                      ),
                                     ));
                               },
                               child: Icon(

@@ -549,8 +549,10 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ReelCommentScreen(
-                                          userPic: widget.userPic,
-                                          reelId: widget.reelId!),
+                                        userPic: widget.userPic,
+                                        reelId: widget.reelId!,
+                                        commentId: null!,
+                                      ),
                                     ));
                               },
                               child: Icon(
@@ -560,6 +562,7 @@ class _ReelsInitializerScreenState extends State<ReelsInitializerScreen> {
                               ),
                             )
                           : const SizedBox(),
+                      Icon(Icons.send),
                       GestureDetector(
                         onTap: _toggleMute,
                         child: Padding(
