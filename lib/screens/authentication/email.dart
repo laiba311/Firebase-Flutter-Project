@@ -8,10 +8,11 @@ import 'package:finalfashiontimefrontend/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:http/http.dart'as https;
+import 'package:http/http.dart' as https;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../customize_pacages/capcha/client_verify/slider_captcha.dart';
+
 class EmailScreen extends StatefulWidget {
   const EmailScreen({super.key});
 
@@ -19,10 +20,9 @@ class EmailScreen extends StatefulWidget {
   State<EmailScreen> createState() => _EmailScreenState();
 }
 
-bool loading =false;
+bool loading = false;
 
-TextEditingController email=TextEditingController();
-
+TextEditingController email = TextEditingController();
 
 class _EmailScreenState extends State<EmailScreen> {
   String? emailError;
@@ -70,11 +70,11 @@ class _EmailScreenState extends State<EmailScreen> {
     print("email => ${savedEmail}");
     print("time => ${endTime}");
 
-    if(otpAttempts != null){
-      print("code "+otpAttempts);
+    if (otpAttempts != null) {
+      print("code " + otpAttempts);
       resendAttempts = int.parse(otpAttempts);
     }
-    print("Attempts "+resendAttempts.toString());
+    print("Attempts " + resendAttempts.toString());
 
     if (savedEmail != null && savedUsername != null && endTime != null) {
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -88,7 +88,8 @@ class _EmailScreenState extends State<EmailScreen> {
           resendAttempts = 4;
           //attempts = 3;
         });
-        _startCountdown(savedEmail,savedUsername,false); // Continue existing timer
+        _startCountdown(
+            savedEmail, savedUsername, false); // Continue existing timer
       } else {
         // Timer expired - clear saved state
         _clearTimerState();
@@ -96,7 +97,7 @@ class _EmailScreenState extends State<EmailScreen> {
     }
   }
 
-  void _startCountdown(email,username,[bool saveState = true]) async {
+  void _startCountdown(email, username, [bool saveState = true]) async {
     // Cancel any existing timer
     _timer?.cancel();
 
@@ -105,7 +106,8 @@ class _EmailScreenState extends State<EmailScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('otp_timer_email', email);
       await prefs.setString('otp_timer_username', username);
-      final endTime = DateTime.now().add(Duration(minutes: 15)).millisecondsSinceEpoch;
+      final endTime =
+          DateTime.now().add(Duration(minutes: 15)).millisecondsSinceEpoch;
       await prefs.setInt('otp_timer_end', endTime);
 
       setState(() {
@@ -145,13 +147,13 @@ class _EmailScreenState extends State<EmailScreen> {
     });
   }
 
-  resetPassword()async{
+  resetPassword() async {
     setState(() {
       loading = true;
     });
-    String url='$serverUrl/password/reset/';
-    try{
-      if(email.text == "") {
+    String url = '$serverUrl/password/reset/';
+    try {
+      if (email.text == "") {
         setState(() {
           loading = false;
         });
@@ -159,12 +161,22 @@ class _EmailScreenState extends State<EmailScreen> {
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: primary,
-            title: const Text("FashionTime",style: TextStyle(color: ascent,fontFamily: Poppins,fontWeight: FontWeight.bold),),
-            content: const Text("Please fill all the fields.",style: TextStyle(color: ascent,fontFamily: Poppins),),
+            title: const Text(
+              "FashionTime",
+              style: TextStyle(
+                  color: ascent,
+                  fontFamily: Poppins,
+                  fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              "Please fill all the fields.",
+              style: TextStyle(color: ascent, fontFamily: Poppins),
+            ),
             actions: [
               TextButton(
-                child: const Text("Okay",style: TextStyle(color: ascent,fontFamily: Poppins)),
-                onPressed:  () {
+                child: const Text("Okay",
+                    style: TextStyle(color: ascent, fontFamily: Poppins)),
+                onPressed: () {
                   setState(() {
                     Navigator.pop(context);
                   });
@@ -221,58 +233,60 @@ class _EmailScreenState extends State<EmailScreen> {
       //   );
       // }
       else {
-        final response= await https.post(Uri.parse(url),body: {
-           'email':email.text.toLowerCase(),
-           'send_email': isSendMail.toString()
-         });
-        if(response.statusCode==200){
+        final response = await https.post(Uri.parse(url), body: {
+          'email': email.text.toLowerCase(),
+          'send_email': isSendMail.toString()
+        });
+        if (response.statusCode == 200) {
           resendAttempts = resendAttempts + 1;
           print("response ${response.body}");
-          print("username => ${jsonDecode(response.body)["code"].split(" ")[0]}");
-          print("email => ${jsonDecode(response.body)["code"].split("with")[1]}");
+          print(
+              "username => ${jsonDecode(response.body)["code"].split(" ")[0]}");
+          print(
+              "email => ${jsonDecode(response.body)["code"].split("with")[1]}");
           String myUsername = jsonDecode(response.body)["code"].split(" ")[0];
           String myEmail = jsonDecode(response.body)["code"].split(" ")[6];
           String code = jsonDecode(response.body)["code"].split(":")[1];
           print("username after => ${myUsername}");
           print("email after => ${myEmail}");
           print("code after => ${code}");
-          if(resendAttempts >= 4){
+          if (resendAttempts >= 4) {
             setState(() {
               loading = false;
             });
-            _startCountdown(myEmail,myUsername);
+            _startCountdown(myEmail, myUsername);
             return;
           }
-          sendResetPasswordEmail(myUsername, myEmail,code);
+          sendResetPasswordEmail(myUsername, myEmail, code);
           // Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordOtpScreen(
           //   email: myEmail,
           //   username: myUsername,
           // ),)).then((val){
           //   getCashedData();
           // });
-        }
-        else{
+        } else {
           _clearTimerState();
           setState(() {
             loading = false;
-            emailError = "We couldn't find an account with that username\nor email address.";
+            emailError =
+                "We couldn't find an account with that username\nor email address.";
           });
-          debugPrint("error received in api============> ${response.statusCode}");
+          debugPrint(
+              "error received in api============> ${response.statusCode}");
         }
       }
-    }
-    catch(e){
+    } catch (e) {
       setState(() {
         loading = false;
       });
-    debugPrint("exception occurred========>${e.toString()}");
+      debugPrint("exception occurred========>${e.toString()}");
     }
   }
 
   void validateEmail() {
     setState(() {
-      if(email.text==''){
-        emailError="Oops! You forgot your username or email.";
+      if (email.text == '') {
+        emailError = "Oops! You forgot your username or email.";
       }
       // else{
       //   emailError = isEmailValid(email.text) ? null : "Invalid email or username format.";
@@ -282,7 +296,8 @@ class _EmailScreenState extends State<EmailScreen> {
 
   bool isEmailValid(String value) {
     // Use regex for simple email validation
-    final RegExp emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final RegExp emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailRegex.hasMatch(value);
     //
   }
@@ -293,18 +308,13 @@ class _EmailScreenState extends State<EmailScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: secondary,
         image: const DecorationImage(
-            image: AssetImage(
-                "assets/background.jpg"
-            ),
-            fit: BoxFit.fill
-        ),
+            image: AssetImage("assets/background.jpg"), fit: BoxFit.fill),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -314,80 +324,101 @@ class _EmailScreenState extends State<EmailScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
-                const SizedBox(height: 30,),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
                 WidgetAnimator(
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset("assets/logo.png",height: 150,),
+                      Image.asset(
+                        "assets/logo.png",
+                        height: 150,
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 50,),
-                WidgetAnimator(
-                    Text('Forgot your password?',style: TextStyle(color: Colors.black54,fontFamily: Poppins,fontSize: 16,fontWeight: FontWeight.bold),)
+                const SizedBox(
+                  height: 50,
                 ),
-                SizedBox(height: 20,),
-                if(resendAttempts >= 4) WidgetAnimator(
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("You’ve tried too many times. Please wait.",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.red,
-                              fontFamily: Poppins
-                          ),
-                        )
-                      ],
-                    )
+                WidgetAnimator(Text(
+                  'Forgot your password?',
+                  style: TextStyle(
+                      color: Colors.black54,
+                      fontFamily: Poppins,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                )),
+                SizedBox(
+                  height: 20,
                 ),
-                if(resendAttempts >= 4) SizedBox(height: 20,),
-                if(resendAttempts >= 4) WidgetAnimator(
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Resend verification link in ",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                              fontFamily: Poppins
-                          ),
-                        ),
-                        Text('${_remainingTime.inMinutes.toString().padLeft(2, '0')}:'
-                            '${(_remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                              fontFamily: Poppins
-                          ),
-                        )
-                      ],
-                    )
-                ),
-                if(resendAttempts >= 4) SizedBox(height: 20,),
-                WidgetAnimator(
-                  Text('Enter your username or email address.',style: TextStyle(color: Colors.black54,fontFamily: Poppins,fontSize: 14.3 ),)
-                ),
+                if (resendAttempts >= 4)
+                  WidgetAnimator(Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "You’ve tried too many times. Please wait.",
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.red,
+                            fontFamily: Poppins),
+                      )
+                    ],
+                  )),
+                if (resendAttempts >= 4)
+                  SizedBox(
+                    height: 20,
+                  ),
+                if (resendAttempts >= 4)
+                  WidgetAnimator(Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Resend verification link in ",
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
+                            fontFamily: Poppins),
+                      ),
+                      Text(
+                        '${_remainingTime.inMinutes.toString().padLeft(2, '0')}:'
+                        '${(_remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                            fontFamily: Poppins),
+                      )
+                    ],
+                  )),
+                if (resendAttempts >= 4)
+                  SizedBox(
+                    height: 20,
+                  ),
+                WidgetAnimator(Text(
+                  'Enter your username or email address.',
+                  style: TextStyle(
+                      color: Colors.black54,
+                      fontFamily: Poppins,
+                      fontSize: 14.3),
+                )),
                 const SizedBox(height: 10),
                 WidgetAnimator(
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: TextField(
                       inputFormatters: [
-                        FilteringTextInputFormatter.deny(
-                            RegExp(r'\s')),
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
                       ],
                       controller: email,
                       style: const TextStyle(
-                          color: Colors.pink,
-                          fontFamily: Poppins
-                      ),
-                      onChanged: (_){
+                          color: Colors.pink, fontFamily: Poppins),
+                      onChanged: (_) {
                         setState(() {
                           emailError = null;
                         });
@@ -397,8 +428,7 @@ class _EmailScreenState extends State<EmailScreen> {
                             color: Colors.black54,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            fontFamily: Poppins
-                        ),
+                            fontFamily: Poppins),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.black54),
                         ),
@@ -411,138 +441,182 @@ class _EmailScreenState extends State<EmailScreen> {
                         alignLabelWithHint: true,
                         hintText: "Username or Email",
                         errorText: emailError,
-                        errorStyle: TextStyle(color: Colors.red,fontWeight: FontWeight.bold,fontFamily: Poppins,fontSize: 10),
+                        errorStyle: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: Poppins,
+                            fontSize: 10),
                       ),
                       cursorColor: Colors.pink,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10,),
-                if(isCaptcha == false) Container(
-                  width: MediaQuery.of(context).size.width * 0.82,
-                  child: CheckboxListTile(
-                    side: BorderSide(color: Colors.black54),
-                    checkColor: ascent,
-                    activeColor: primary,
-                    title: Text('I am human',style: TextStyle(color: Colors.black54,fontFamily: Poppins),),
-                    value: checked,
-                    onChanged: (bool? value) async {
-                      setState(() {
-                        checked = value!;
-                      });
-                      await Future.delayed(const Duration(seconds: 1));
-                      setState(() {
-                        isCaptcha = value!;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading, // Position of checkbox
-                  ),
+                const SizedBox(
+                  height: 10,
                 ),
-                const SizedBox(height: 10,),
-                if(textError.isEmpty == false) Container(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(textError,style: TextStyle(color: Colors.red,fontFamily: Poppins,fontWeight: FontWeight.bold,fontSize: 10),)
-                    ],
-                  ),
-                ),
-                if(textError.isEmpty == false) const SizedBox(height: 10,),
-                if(isCaptcha == true) Container(
-                  width: 300,
-                  height: 500,
-                  child: SliderCaptcha(
-                    key: ValueKey(_captchaRetryCount),
-                    colorBar: Colors.black54,
-                    titleStyle: TextStyle(fontFamily: Poppins),
-                    title: "Slide to complete the puzzle",
-                    captchaSize: 30,
-                    slideContainerDecoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: primary
+                if (isCaptcha == false)
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.82,
+                    child: CheckboxListTile(
+                      side: BorderSide(color: Colors.black54),
+                      checkColor: ascent,
+                      activeColor: primary,
+                      title: Text(
+                        'I am human',
+                        style: TextStyle(
+                            color: Colors.black54, fontFamily: Poppins),
+                      ),
+                      value: checked,
+                      onChanged: (bool? value) async {
+                        setState(() {
+                          checked = value!;
+                        });
+                        await Future.delayed(const Duration(seconds: 1));
+                        setState(() {
+                          isCaptcha = value!;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, // Position of checkbox
                     ),
-                    onConfirm: (value) async {
-                      print("Value ==> ${value}");
-                      if (value) {
-                        print("Captcha success");
-                        setState(() {
-                          textError = "";
-                          isCaptcha = false;
-                          _captchaRetryCount = 0;
-                        });
-                      } else {
-                        setState(() {
-                          _captchaRetryCount++;
-                          textError = "Please complete the puzzle to verify you're\nhuman.";
-                        });
-                        print("Captcha failed");
-                      }
-                    },
                   ),
+                const SizedBox(
+                  height: 10,
                 ),
-                if(isCaptcha == false) WidgetAnimator(
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                if (textError.isEmpty == false)
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        loading == true ? const SpinKitCircle(color: ascent,size: 70,) : Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15.0),
-                              gradient: (resendAttempts >= 4) ? LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.topRight,
-                                  stops: const [0.0, 0.99],
-                                  tileMode: TileMode.clamp,
-                                  colors: <Color>[
-                                    Colors.grey,
-                                    Colors.grey
-                                  ]) : LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.topRight,
-                                  stops: const [0.0, 0.99],
-                                  tileMode: TileMode.clamp,
-                                  colors: <Color>[
-                                    primary,
-                                    secondary
-                                  ])
-                          ),
-                          child: ElevatedButton(
-                              style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12.0),
-                                      )
-                                  ),
-                                  backgroundColor: MaterialStateProperty.all(Colors.transparent),
-                                  shadowColor: MaterialStateProperty.all(Colors.transparent),
-                                  padding: MaterialStateProperty.all(EdgeInsets.only(
-                                      top: 8,bottom: 8,
-                                      left:MediaQuery.of(context).size.width * 0.1,right: MediaQuery.of(context).size.width * 0.1)),
-                                  textStyle: MaterialStateProperty.all(
-                                      const TextStyle(fontSize: 12, color: Colors.white,fontFamily: Poppins))),
-                              onPressed: (resendAttempts >= 4) ? null : () {
-                                validateEmail();
-                                  if(checked == true) {
-                                    if(emailError == null) {
-                                      resetPassword();
-                                    }
-                                  } else {
-                                    setState(() {
-                                      textError = "Please complete the puzzle to verify you're\nhuman.";
-                                    });
-                                  }
-                              },
-                              child: const Text('Send Verification Link',style: TextStyle(
-                                  fontSize: 16,
-                                  color: ascent,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: Poppins
-                              ),)),
-                        ),
+                        Text(
+                          textError,
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontFamily: Poppins,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
+                        )
                       ],
-                    )
-                ),
+                    ),
+                  ),
+                if (textError.isEmpty == false)
+                  const SizedBox(
+                    height: 10,
+                  ),
+                if (isCaptcha == true)
+                  Container(
+                    width: 300,
+                    height: 500,
+                    child: SliderCaptcha(
+                      key: ValueKey(_captchaRetryCount),
+                      colorBar: Colors.black54,
+                      titleStyle: TextStyle(fontFamily: Poppins),
+                      title: "Slide to complete the puzzle",
+                      captchaSize: 30,
+                      slideContainerDecoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          color: primary),
+                      onConfirm: (value) async {
+                        print("Value ==> ${value}");
+                        if (value) {
+                          print("Captcha success");
+                          setState(() {
+                            textError = "";
+                            isCaptcha = false;
+                            _captchaRetryCount = 0;
+                          });
+                        } else {
+                          setState(() {
+                            _captchaRetryCount++;
+                            textError =
+                                "Please complete the puzzle to verify you're\nhuman.";
+                          });
+                          print("Captcha failed");
+                        }
+                      },
+                    ),
+                  ),
+                if (isCaptcha == false)
+                  WidgetAnimator(Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      loading == true
+                          ? const SpinKitCircle(
+                              color: ascent,
+                              size: 70,
+                            )
+                          : Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  gradient: (resendAttempts >= 4)
+                                      ? LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.topRight,
+                                          stops: const [0.0, 0.99],
+                                          tileMode: TileMode.clamp,
+                                          colors: <Color>[
+                                            Colors.grey,
+                                            Colors.grey
+                                          ])
+                                      : LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.topRight,
+                                          stops: const [0.0, 0.99],
+                                          tileMode: TileMode.clamp,
+                                          colors: <Color>[primary, secondary])),
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      )),
+                                      backgroundColor: MaterialStateProperty.all(
+                                          Colors.transparent),
+                                      shadowColor: MaterialStateProperty.all(
+                                          Colors.transparent),
+                                      padding: MaterialStateProperty.all(EdgeInsets.only(
+                                          top: 8,
+                                          bottom: 8,
+                                          left: MediaQuery.of(context).size.width *
+                                              0.1,
+                                          right:
+                                              MediaQuery.of(context).size.width *
+                                                  0.1)),
+                                      textStyle: MaterialStateProperty.all(
+                                          const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                              fontFamily: Poppins))),
+                                  onPressed: (resendAttempts >= 4)
+                                      ? null
+                                      : () {
+                                          validateEmail();
+                                          if (checked == true) {
+                                            if (emailError == null) {
+                                              resetPassword();
+                                            }
+                                          } else {
+                                            setState(() {
+                                              textError =
+                                                  "Please complete the puzzle to verify you're\nhuman.";
+                                            });
+                                          }
+                                        },
+                                  child: const Text(
+                                    'Send Verification Link',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: ascent,
+                                        fontWeight: FontWeight.w700,
+                                        fontFamily: Poppins),
+                                  )),
+                            ),
+                    ],
+                  )),
               ],
             ),
           ),
@@ -550,18 +624,21 @@ class _EmailScreenState extends State<EmailScreen> {
       ),
     );
   }
-  Future<void> sendResetPasswordEmail(userUsername,userEmail,code) async {
+
+  Future<void> sendResetPasswordEmail(userUsername, userEmail, code) async {
     print("My Username ==> ${userUsername}");
     print("My Email ==> ${userEmail}");
     print("My Code ==> ${code}");
-    final url = Uri.parse('https://api.mailgun.net/v3/fashiontime.app/messages');
+    final url =
+        Uri.parse('https://api.mailgun.net/v3/fashiontime.app/messages');
 
     // Basic Authentication credentials
     final username = 'api';
-    final password = '***REMOVED***';
+    final password = 'Your_Api_key_here';
     final credentials = base64Encode(utf8.encode('$username:$password'));
 
-    String resetLink = "https://fashiontime.app/reset-password/${userUsername}/${userEmail}/${code}/${DateTime.now()}";
+    String resetLink =
+        "https://fashiontime.app/reset-password/${userUsername}/${userEmail}/${code}/${DateTime.now()}";
 
     // HTML content with replaced placeholders
     // HTML content with styled clickable link
@@ -625,12 +702,22 @@ class _EmailScreenState extends State<EmailScreen> {
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: primary,
-            title: const Text("Check your inbox!",style: TextStyle(color: ascent,fontFamily: Poppins,fontWeight: FontWeight.bold),),
-            content: const Text("We’ve sent a verification link to the email address associated with your account for resetting your password.",style: TextStyle(color: ascent,fontFamily: Poppins),),
+            title: const Text(
+              "Check your inbox!",
+              style: TextStyle(
+                  color: ascent,
+                  fontFamily: Poppins,
+                  fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              "We’ve sent a verification link to the email address associated with your account for resetting your password.",
+              style: TextStyle(color: ascent, fontFamily: Poppins),
+            ),
             actions: [
               TextButton(
-                child: const Text("Okay",style: TextStyle(color: ascent,fontFamily: Poppins)),
-                onPressed:  () {
+                child: const Text("Okay",
+                    style: TextStyle(color: ascent, fontFamily: Poppins)),
+                onPressed: () {
                   setState(() {
                     Navigator.pop(context);
                   });
